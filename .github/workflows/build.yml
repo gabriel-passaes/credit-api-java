@@ -1,0 +1,49 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Código
+        uses: actions/checkout@v3
+
+      - name: 🧰 Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🧹 Limpar Build
+        run: ./gradlew clean
+
+      - name: ⚙️ Build Sem Testes
+        run: ./gradlew build -x test
+
+      - name: ✅ Testes Unitários e Integração
+        run: ./gradlew test
+
+      - name: 🥒 Testes BDD (Cucumber)
+        run: ./gradlew test --tests "*CucumberRunnerTest"
+
+      - name: 📈 Gerar Cobertura Com Jacoco
+        run: ./gradlew jacocoTestReport
+
+      - name: ☁️ SonarQube Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: 📦 Upload Artefato (JAR)
+        uses: actions/upload-artifact@v3
+        with:
+          name: credit-api-jar
+          path: build/libs/*.jar

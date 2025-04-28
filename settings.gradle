@@ -1,0 +1,2 @@
+// Define o nome raiz do projeto para uso no build e no IntelliJ/IDE
+rootProject.name = 'credit-api'

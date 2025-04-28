@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Nota Fiscal - Crédito</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #2c3e50;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f9f9f9;
+        }
+
+        .footer {
+            font-size: 11px;
+            color: #888;
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nota Fiscal - Crédito Gerado</h1>
+
+    <table>
+        <tr><th>Número do Crédito</th><td>{{creditNumber}}</td></tr>
+        <tr><th>Número da NFS-e</th><td>{{nfseNumber}}</td></tr>
+        <tr><th>Data de Constituição</th><td>{{constitutionDate}}</td></tr>
+        <tr><th>Tipo de Crédito</th><td>{{creditType}}</td></tr>
+        <tr><th>Simples Nacional</th><td>{{simpleNational}}</td></tr>
+        <tr><th>Valor ISSQN</th><td>R$ {{issqnAmount}}</td></tr>
+        <tr><th>Alíquota</th><td>{{rate}}%</td></tr>
+        <tr><th>Valor Faturado</th><td>R$ {{billedAmount}}</td></tr>
+        <tr><th>Valor de Dedução</th><td>R$ {{deductionAmount}}</td></tr>
+        <tr><th>Base de Cálculo</th><td>R$ {{calculationBase}}</td></tr>
+    </table>
+
+    <div class="footer">
+        Documento gerado automaticamente por Credit API. Não é necessário assinatura.
+    </div>
+</body>
+</html>

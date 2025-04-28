@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+    show-sql: false
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+server:
+  port: 0
+  error:
+    include-message: always
+
+jwt:
+  secret: 8N5Kf7qP0tGzY1xW9vQbLuM4pR2tXcHa
+  access-token-ttl: 15m
+  refresh-token-ttl: 30d
+
+social:
+  google:
+    client-id: "fake-google-client-id"
+    client-secret: "fake-google-client-secret"
+  facebook:
+    app-id: "fake-facebook-app-id"
+    app-secret: "fake-facebook-app-secret"
+
+logging:
+  level:
+    root: WARN
+    com.creditapi: DEBUG
+    org.springframework.beans.factory.support: ERROR
+    org.springframework.context.annotation.ClassPathBeanDefinitionScanner: ERROR
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+spring.main.allow-bean-definition-overriding: true
+spring.scheduling.enabled: false
