@@ -51,6 +51,7 @@ dependencies {
 
     // Database
     implementation 'org.postgresql:postgresql'
+    implementation 'com.h2database:h2'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.30'
@@ -63,7 +64,6 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.7.0'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
-    testImplementation 'com.h2database:h2'
 
     // Cucumber (JUnit 4)
     testImplementation 'io.cucumber:cucumber-java:7.14.0'
@@ -96,7 +96,7 @@ sonar {
         property "sonar.login", "seu_token_aqui"
         property "sonar.java.binaries", "build/classes"
         property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
-        property "sonar.gradle.skipCompile", "true" 
+        property "sonar.gradle.skipCompile", "true"
     }
 }
 

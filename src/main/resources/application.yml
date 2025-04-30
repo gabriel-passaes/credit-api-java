@@ -1,56 +1,12 @@
 spring:
-  profiles:
-    active: dev
-
   application:
     name: credit-api
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/creditdb
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
+  profiles:
+    active: dev
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: your-email@gmail.com
-    password: your-password-or-app-token
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-
-  messages:
-    basename: i18n/messages
-
-  aws:
-    s3:
-      access-key: your-aws-access-key
-      secret-key: your-aws-secret-key
-      region: us-east-1
-      bucket: your-s3-bucket-name
-
-  cache:
-    type: caffeine
-    caffeine:
-      spec: maximumSize=500, expireAfterAccess=30m
+server:
+  port: 8080
 
 management:
   endpoints:
@@ -67,6 +23,17 @@ logging:
     root: INFO
     com.creditapi: DEBUG
 
+app:
+  frontend:
+    reset-password-url: https://app.seudominio.com/reset-password?token=
+  cdn:
+    avatar-base-url: https://cdn.seudominio.com/
+
+jwt:
+  secret: 7130e0b9e8f74c28c92ae5ad6bd9d9a678f8e78561a937ef04728f5d79ec3d6b
+  access-token-ttl: 15m
+  refresh-token-ttl: 30d
+
 invoice:
   provider:
     type: tiranota
@@ -74,11 +41,6 @@ invoice:
       base-url: https://api.tiranota.com.br
       api-key: ${TIRANOTA_API_KEY}
       timeout: 3000
-
-jwt:
-  secret: 7130e0b9e8f74c28c92ae5ad6bd9d9a678f8e78561a937ef04728f5d79ec3d6b
-  access-token-ttl: 15m
-  refresh-token-ttl: 30d
 
 social:
   google:
@@ -123,9 +85,3 @@ resilience4j:
       default:
         max-concurrent-calls: 10
         max-wait-duration: 0
-
-app:
-  frontend:
-    reset-password-url: https://app.seudominio.com/reset-password?token=
-  cdn:
-    avatar-base-url: https://cdn.seudominio.com/

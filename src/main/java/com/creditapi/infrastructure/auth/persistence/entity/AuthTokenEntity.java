@@ -24,7 +24,7 @@ public class AuthTokenEntity {
   @Column(nullable = false)
   private Long userId;
 
-  @Column(nullable = false, unique = true)
+  @Column(name = "token_value", nullable = false, unique = true)
   private String value;
 
   @Column(nullable = false)

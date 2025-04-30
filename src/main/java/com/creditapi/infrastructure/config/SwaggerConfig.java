@@ -13,7 +13,7 @@ public class SwaggerConfig {
   public GroupedOpenApi publicApi() {
     return GroupedOpenApi.builder()
         .group("credit-api")
-        .packagesToScan("com.creditapi.infrastructure.api.controller")
+        .packagesToScan("com.creditapi.presentation")
         .build();
   }
 }

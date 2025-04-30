@@ -41,7 +41,6 @@ class FacebookTokenVerifierTest {
     when(facebookProperties.getAppId()).thenReturn("fake-facebook-app-id");
     when(facebookProperties.getAppSecret()).thenReturn("fake-facebook-app-secret");
 
-    // Agora o RestTemplate é obrigatório no construtor
     facebookTokenVerifier = new FacebookTokenVerifier(facebookProperties, restTemplate);
   }
 
@@ -52,7 +51,6 @@ class FacebookTokenVerifierTest {
     mockProperties.setAppId("fake-facebook-app-id");
     mockProperties.setAppSecret("fake-facebook-app-secret");
 
-    // Agora também passa o RestTemplate no construtor
     FacebookTokenVerifier verifier = new FacebookTokenVerifier(mockProperties, restTemplate);
 
     Optional<FacebookProfile> result = verifier.verifyAndGetProfile("mock-token");

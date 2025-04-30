@@ -133,7 +133,7 @@ make start
 
 ## 📚 Documentação Swagger
 
-- Acesse: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- Acesse: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
 ---
 
