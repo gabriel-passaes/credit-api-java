@@ -1,27 +1,7 @@
 package com.creditapi.presentation.credit.api.controller;
 
-import com.creditapi.application.credit.dto.request.CreateCreditRequestDTO;
-import com.creditapi.application.credit.dto.request.UpdateCreditRequestDTO;
-import com.creditapi.application.credit.dto.response.CreateCreditResponseDTO;
-import com.creditapi.application.credit.dto.response.CreditResponseDTO;
-import com.creditapi.application.credit.dto.search.CreditSearchCriteria;
-import com.creditapi.application.credit.usecase.create.CreateCreditUseCase;
-import com.creditapi.application.credit.usecase.delete.DeleteCreditUseCase;
-import com.creditapi.application.credit.usecase.delete.DeleteMultipleCreditsUseCase;
-import com.creditapi.application.credit.usecase.download.DownloadCreditInvoiceUseCase;
-import com.creditapi.application.credit.usecase.email.SendCreditByEmailUseCase;
-import com.creditapi.application.credit.usecase.query.AdvancedSearchCreditsUseCase;
-import com.creditapi.application.credit.usecase.query.GetCreditByNumberUseCase;
-import com.creditapi.application.credit.usecase.query.GetCreditsByNfseUseCase;
-import com.creditapi.application.credit.usecase.query.GetPaginatedCreditsUseCase;
-import com.creditapi.application.credit.usecase.update.UpdateCreditUseCase;
-import com.creditapi.application.credit.usecase.upload.UploadCreditFileUseCase;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -41,6 +21,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.creditapi.application.credit.dto.request.CreateCreditRequestDTO;
+import com.creditapi.application.credit.dto.request.UpdateCreditRequestDTO;
+import com.creditapi.application.credit.dto.response.CreateCreditResponseDTO;
+import com.creditapi.application.credit.dto.response.CreditResponseDTO;
+import com.creditapi.application.credit.dto.search.CreditSearchCriteria;
+import com.creditapi.application.credit.usecase.create.CreateCreditUseCase;
+import com.creditapi.application.credit.usecase.delete.DeleteCreditUseCase;
+import com.creditapi.application.credit.usecase.delete.DeleteMultipleCreditsUseCase;
+import com.creditapi.application.credit.usecase.download.DownloadCreditInvoiceUseCase;
+import com.creditapi.application.credit.usecase.email.SendCreditByEmailUseCase;
+import com.creditapi.application.credit.usecase.query.AdvancedSearchCreditsUseCase;
+import com.creditapi.application.credit.usecase.query.GetCreditByNumberUseCase;
+import com.creditapi.application.credit.usecase.query.GetCreditsByNfseUseCase;
+import com.creditapi.application.credit.usecase.query.GetPaginatedCreditsUseCase;
+import com.creditapi.application.credit.usecase.update.UpdateCreditUseCase;
+import com.creditapi.application.credit.usecase.upload.UploadCreditFileUseCase;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/credits")
@@ -89,9 +95,27 @@ public class CreditController {
   @PostMapping
   @Operation(summary = "Criar um novo crédito")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Crédito criado com sucesso"),
-    @ApiResponse(responseCode = "400", description = "Requisição inválida"),
-    @ApiResponse(responseCode = "422", description = "Crédito duplicado")
+    @ApiResponse(
+      responseCode = "201",
+      description = "Crédito criado com sucesso",
+      content = @Content(schema = @Schema(implementation = CreateCreditResponseDTO.class))
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Requisição inválida",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Dados obrigatórios ausentes\"}")
+      )
+    ),
+    @ApiResponse(
+      responseCode = "422",
+      description = "Crédito duplicado",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Crédito já existente com este número\"}")
+      )
+    )
   })
   public ResponseEntity<CreateCreditResponseDTO> create(
       @RequestBody @Valid CreateCreditRequestDTO request) {
@@ -103,8 +127,19 @@ public class CreditController {
   @GetMapping("/nfse/{nfseNumber}")
   @Operation(summary = "Consultar créditos vinculados a uma NFS-e")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Créditos encontrados"),
-    @ApiResponse(responseCode = "404", description = "Nenhum crédito encontrado")
+    @ApiResponse(
+      responseCode = "200",
+      description = "Créditos encontrados",
+      content = @Content(schema = @Schema(implementation = CreditResponseDTO.class))
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Nenhum crédito encontrado",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Nenhum crédito localizado\"}")
+      )
+    )
   })
   public ResponseEntity<List<CreditResponseDTO>> getByNfse(@PathVariable String nfseNumber) {
     var list = getCreditsByNfseUseCase.execute(nfseNumber, Pageable.unpaged()).getContent();
@@ -113,7 +148,11 @@ public class CreditController {
 
   @GetMapping
   @Operation(summary = "Listar todos os créditos com paginação")
-  @ApiResponse(responseCode = "200", description = "Lista de créditos paginada")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Lista de créditos paginada",
+    content = @Content(schema = @Schema(implementation = CreditResponseDTO.class))
+  )
   public ResponseEntity<Page<CreditResponseDTO>> getAllPaginated(Pageable pageable) {
     return ResponseEntity.ok(getPaginatedCreditsUseCase.execute(pageable));
   }
@@ -121,8 +160,19 @@ public class CreditController {
   @GetMapping("/credit/{creditNumber}")
   @Operation(summary = "Buscar crédito pelo número")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Crédito encontrado"),
-    @ApiResponse(responseCode = "404", description = "Crédito não encontrado")
+    @ApiResponse(
+      responseCode = "200",
+      description = "Crédito encontrado",
+      content = @Content(schema = @Schema(implementation = CreditResponseDTO.class))
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Crédito não encontrado",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Crédito não localizado\"}")
+      )
+    )
   })
   public ResponseEntity<CreditResponseDTO> getByNumber(@PathVariable String creditNumber) {
     return ResponseEntity.ok(getCreditByNumberUseCase.execute(creditNumber));
@@ -130,18 +180,40 @@ public class CreditController {
 
   @PostMapping("/search")
   @Operation(summary = "Busca avançada de créditos com filtros")
-  @ApiResponse(responseCode = "200", description = "Lista filtrada de créditos")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Lista filtrada de créditos",
+    content = @Content(schema = @Schema(implementation = CreditResponseDTO.class))
+  )
   public ResponseEntity<Page<CreditResponseDTO>> advancedSearch(
-      @RequestBody CreditSearchCriteria criteria, Pageable pageable) {
+      @RequestBody @Valid CreditSearchCriteria criteria, Pageable pageable) {
     return ResponseEntity.ok(advancedSearchCreditsUseCase.execute(criteria, pageable));
   }
 
   @PutMapping("/credit/{creditNumber}")
   @Operation(summary = "Atualizar crédito existente")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Crédito atualizado com sucesso"),
-    @ApiResponse(responseCode = "400", description = "Requisição inválida"),
-    @ApiResponse(responseCode = "404", description = "Crédito não encontrado")
+    @ApiResponse(
+      responseCode = "200",
+      description = "Crédito atualizado com sucesso",
+      content = @Content(schema = @Schema(implementation = CreditResponseDTO.class))
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Requisição inválida",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Dados inválidos para atualização\"}")
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Crédito não encontrado",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Crédito inexistente\"}")
+      )
+    )
   })
   public ResponseEntity<CreditResponseDTO> update(
       @PathVariable String creditNumber, @RequestBody @Valid UpdateCreditRequestDTO request) {
@@ -152,7 +224,14 @@ public class CreditController {
   @Operation(summary = "Excluir crédito pelo número")
   @ApiResponses({
     @ApiResponse(responseCode = "204", description = "Crédito excluído com sucesso"),
-    @ApiResponse(responseCode = "404", description = "Crédito não encontrado")
+    @ApiResponse(
+      responseCode = "404",
+      description = "Crédito não encontrado",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Crédito não localizado\"}")
+      )
+    )
   })
   public ResponseEntity<Void> deleteOne(@PathVariable String creditNumber) {
     deleteUseCase.execute(creditNumber);
@@ -171,8 +250,22 @@ public class CreditController {
   @Operation(summary = "Upload de nota fiscal (mock)")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Upload realizado com sucesso"),
-    @ApiResponse(responseCode = "400", description = "Arquivo inválido"),
-    @ApiResponse(responseCode = "404", description = "Crédito não encontrado")
+    @ApiResponse(
+      responseCode = "400",
+      description = "Arquivo inválido",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Tipo de arquivo não suportado\"}")
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Crédito não encontrado",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Crédito inexistente\"}")
+      )
+    )
   })
   public ResponseEntity<Void> uploadInvoice(
       @PathVariable Long creditId, @RequestParam("file") MultipartFile file) {
@@ -183,10 +276,22 @@ public class CreditController {
   @GetMapping("/{creditNumber}/download")
   @Operation(summary = "Download da nota fiscal em PDF")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "PDF gerado com sucesso"),
-    @ApiResponse(responseCode = "404", description = "Crédito não encontrado")
+    @ApiResponse(
+      responseCode = "200",
+      description = "PDF gerado com sucesso",
+      content = @Content(mediaType = "application/pdf")
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Crédito não encontrado",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Nota fiscal não encontrada\"}")
+      )
+    )
   })
-  public ResponseEntity<byte[]> downloadInvoice(@PathVariable String creditNumber) {
+  public ResponseEntity<byte[]> downloadInvoice(
+      @PathVariable String creditNumber) {
     byte[] pdfBytes = downloadUseCase.execute(creditNumber);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_PDF);
@@ -201,7 +306,14 @@ public class CreditController {
   @Operation(summary = "Enviar nota fiscal por e-mail")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "E-mail enviado com sucesso"),
-    @ApiResponse(responseCode = "404", description = "Crédito não encontrado")
+    @ApiResponse(
+      responseCode = "404",
+      description = "Crédito não encontrado",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Crédito inexistente para envio\"}")
+      )
+    )
   })
   public ResponseEntity<Void> sendEmail(
       @PathVariable String creditNumber, @RequestParam String toEmail) {

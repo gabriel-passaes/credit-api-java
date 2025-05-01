@@ -1,18 +1,8 @@
 package com.creditapi.presentation.invoice.api.controller;
 
-import com.creditapi.application.invoice.dto.request.DownloadInvoiceRequestDTO;
-import com.creditapi.application.invoice.dto.response.InvoiceStatusResponseDTO;
-import com.creditapi.application.invoice.usecase.download.DownloadInvoiceUseCase;
-import com.creditapi.application.invoice.usecase.status.ConsultInvoiceStatusUseCase;
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,6 +16,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.creditapi.application.invoice.dto.request.DownloadInvoiceRequestDTO;
+import com.creditapi.application.invoice.dto.response.InvoiceStatusResponseDTO;
+import com.creditapi.application.invoice.usecase.download.DownloadInvoiceUseCase;
+import com.creditapi.application.invoice.usecase.status.ConsultInvoiceStatusUseCase;
+
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/invoice")
 @Tag(name = "Invoice", description = "Endpoints relacionados a notas fiscais")
@@ -37,22 +42,39 @@ public class InvoiceController {
   private final DownloadInvoiceUseCase downloadUseCase;
 
   public InvoiceController(
-      ConsultInvoiceStatusUseCase consultStatusUseCase, DownloadInvoiceUseCase downloadUseCase) {
+      ConsultInvoiceStatusUseCase consultStatusUseCase,
+      DownloadInvoiceUseCase downloadUseCase) {
     this.consultStatusUseCase = consultStatusUseCase;
     this.downloadUseCase = downloadUseCase;
   }
 
   @PostMapping("/status")
-  @Operation(
-      summary = "Consultar status de nota fiscal",
-      responses = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Status consultado com sucesso",
-            content = @Content(schema = @Schema(implementation = InvoiceStatusResponseDTO.class))),
-        @ApiResponse(responseCode = "400", description = "Requisição inválida"),
-        @ApiResponse(responseCode = "404", description = "Nota fiscal não encontrada")
-      })
+  @Operation(summary = "Consultar status de nota fiscal")
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Status consultado com sucesso",
+      content = @Content(
+        schema = @Schema(implementation = InvoiceStatusResponseDTO.class)
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Requisição inválida",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Dados de requisição inválidos\"}")
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Nota fiscal não encontrada",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Nota fiscal não localizada\"}")
+      )
+    )
+  })
   @Cacheable(value = "invoice-status", key = "#request.invoiceNumber() + '-' + #request.cnpj()")
   public ResponseEntity<InvoiceStatusResponseDTO> consultStatus(
       @RequestBody @Valid DownloadInvoiceRequestDTO request) {
@@ -66,16 +88,30 @@ public class InvoiceController {
   }
 
   @PostMapping("/download")
-  @Operation(
-      summary = "Realizar download do PDF da nota fiscal",
-      responses = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Download realizado com sucesso",
-            content = @Content(mediaType = "application/pdf")),
-        @ApiResponse(responseCode = "400", description = "Requisição inválida"),
-        @ApiResponse(responseCode = "404", description = "Nota fiscal não encontrada")
-      })
+  @Operation(summary = "Realizar download do PDF da nota fiscal")
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Download realizado com sucesso",
+      content = @Content(mediaType = "application/pdf")
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Requisição inválida",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Dados de requisição inválidos\"}")
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Nota fiscal não encontrada",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(value = "{\"message\": \"Nota fiscal não localizada\"}")
+      )
+    )
+  })
   @RateLimiter(name = "invoice-download")
   public ResponseEntity<byte[]> downloadInvoice(
       @RequestBody @Valid DownloadInvoiceRequestDTO request) {

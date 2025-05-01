@@ -1,5 +1,13 @@
 package com.creditapi.presentation.auth.api.controller;
 
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.creditapi.application.auth.dto.request.LoginRequestDTO;
 import com.creditapi.application.auth.dto.request.RecoverPasswordRequestDTO;
 import com.creditapi.application.auth.dto.request.RefreshTokenRequestDTO;
@@ -17,21 +25,16 @@ import com.creditapi.application.auth.usecase.recover.ResetPasswordUseCase;
 import com.creditapi.application.auth.usecase.refresh.InvalidateTokenUseCase;
 import com.creditapi.application.auth.usecase.refresh.RefreshTokenUseCase;
 import com.creditapi.application.auth.usecase.register.RegisterUserUseCase;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
@@ -73,7 +76,10 @@ public class AuthController {
         responseCode = "200",
         description = "Login realizado com sucesso",
         content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
-    @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+    @ApiResponse(
+        responseCode = "401",
+        description = "Credenciais inválidas",
+        content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Credenciais inválidas\"}")))
   })
   public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
     LoginResponseDTO response = loginUseCase.execute(dto);
@@ -91,7 +97,10 @@ public class AuthController {
         responseCode = "200",
         description = "Login social bem-sucedido",
         content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
-    @ApiResponse(responseCode = "401", description = "Token social inválido")
+    @ApiResponse(
+        responseCode = "401",
+        description = "Token social inválido",
+        content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Token inválido\"}")))
   })
   public ResponseEntity<LoginResponseDTO> socialLogin(
       @Valid @RequestBody SocialLoginRequestDTO dto) {
@@ -110,7 +119,10 @@ public class AuthController {
         responseCode = "201",
         description = "Cadastro realizado com sucesso",
         content = @Content(schema = @Schema(implementation = RegisterResponseDTO.class))),
-    @ApiResponse(responseCode = "400", description = "Dados de registro inválidos")
+    @ApiResponse(
+        responseCode = "400",
+        description = "Dados de registro inválidos",
+        content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"E-mail já registrado\"}")))
   })
   public ResponseEntity<RegisterResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) {
     RegisterResponseDTO response = registerUseCase.execute(dto);
@@ -128,7 +140,10 @@ public class AuthController {
         responseCode = "200",
         description = "E-mail de recuperação enviado",
         content = @Content(schema = @Schema(implementation = PasswordRecoveryResponseDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    @ApiResponse(
+        responseCode = "404",
+        description = "Usuário não encontrado",
+        content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Usuário não encontrado\"}")))
   })
   public ResponseEntity<PasswordRecoveryResponseDTO> recover(
       @Valid @RequestBody RecoverPasswordRequestDTO dto) {
@@ -145,8 +160,14 @@ public class AuthController {
         responseCode = "200",
         description = "Senha redefinida com sucesso",
         content = @Content(schema = @Schema(implementation = RefreshResponseDTO.class))),
-    @ApiResponse(responseCode = "400", description = "Token inválido ou expirado"),
-    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    @ApiResponse(
+        responseCode = "400",
+        description = "Token inválido ou expirado",
+        content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Token inválido ou expirado\"}"))),
+    @ApiResponse(
+        responseCode = "404",
+        description = "Usuário não encontrado",
+        content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Usuário não encontrado\"}")))
   })
   public ResponseEntity<RefreshResponseDTO> reset(@Valid @RequestBody ResetPasswordRequestDTO dto) {
     RefreshResponseDTO response = resetUseCase.execute(dto);
@@ -164,7 +185,10 @@ public class AuthController {
         responseCode = "200",
         description = "Tokens renovados",
         content = @Content(schema = @Schema(implementation = RefreshResponseDTO.class))),
-    @ApiResponse(responseCode = "401", description = "Refresh token inválido ou expirado")
+    @ApiResponse(
+        responseCode = "401",
+        description = "Refresh token inválido ou expirado",
+        content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Refresh token inválido ou expirado\"}")))
   })
   public ResponseEntity<RefreshResponseDTO> refresh(
       @Valid @RequestBody RefreshTokenRequestDTO dto) {
@@ -175,7 +199,9 @@ public class AuthController {
 
   @PostMapping(value = "/logout", consumes = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Logout: invalida um refresh token")
-  @ApiResponses({@ApiResponse(responseCode = "204", description = "Logout realizado com sucesso")})
+  @ApiResponses({
+    @ApiResponse(responseCode = "204", description = "Logout realizado com sucesso")
+  })
   public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequestDTO dto) {
     invalidateUseCase.execute(dto);
     return ResponseEntity.noContent().build();
@@ -185,7 +211,10 @@ public class AuthController {
   @Operation(summary = "Logout de todos os tokens do usuário")
   @ApiResponses({
     @ApiResponse(responseCode = "204", description = "Todos os tokens invalidados"),
-    @ApiResponse(responseCode = "401", description = "Não autenticado")
+    @ApiResponse(
+        responseCode = "401",
+        description = "Não autenticado",
+        content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Token JWT ausente ou inválido\"}")))
   })
   public ResponseEntity<Void> logoutAll(@Parameter(hidden = true) Authentication auth) {
     Long userId = (Long) auth.getPrincipal();
